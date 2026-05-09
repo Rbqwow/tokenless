@@ -5,7 +5,7 @@
  */
 
 import { tokenlessFile, tokenless } from './index.js';
-import { readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 
 const args = process.argv.slice(2);
 
@@ -24,6 +24,10 @@ let outputPath = null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '-o' || args[i] === '--output') {
+    if (i + 1 >= args.length) {
+      console.error('错误: -o 选项需要指定输出文件路径');
+      process.exit(1);
+    }
     outputPath = args[++i];
   } else {
     inputPath = args[i];
@@ -35,16 +39,28 @@ if (!inputPath) {
   process.exit(1);
 }
 
-let result;
-if (inputPath === '-') {
-  const content = readFileSync('/dev/stdin', 'utf-8');
-  result = tokenless(content);
-} else {
-  result = tokenlessFile(inputPath);
+async function run() {
+  let result;
+  if (inputPath === '-') {
+    // 从标准输入读取（跨平台）
+    const chunks = [];
+    for await (const chunk of process.stdin) {
+      chunks.push(chunk);
+    }
+    const content = Buffer.concat(chunks).toString('utf-8');
+    result = tokenless(content);
+  } else {
+    result = tokenlessFile(inputPath);
+  }
+
+  if (outputPath) {
+    writeFileSync(outputPath, result, 'utf-8');
+  } else {
+    process.stdout.write(result + '\n');
+  }
 }
 
-if (outputPath) {
-  writeFileSync(outputPath, result, 'utf-8');
-} else {
-  process.stdout.write(result + '\n');
-}
+run().catch(err => {
+  console.error('错误:', err.message);
+  process.exit(1);
+});
