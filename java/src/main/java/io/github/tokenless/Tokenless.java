@@ -98,13 +98,13 @@ public class Tokenless {
             return true;
         }
         if (first == 't') {
-            return text.startsWith("true");
+            return text.equals("true");
         }
         if (first == 'f') {
-            return text.startsWith("false");
+            return text.equals("false");
         }
         if (first == 'n') {
-            return text.startsWith("null");
+            return text.equals("null");
         }
         return false;
     }
