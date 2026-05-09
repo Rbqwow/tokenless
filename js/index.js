@@ -3,6 +3,37 @@
  * 将JSON和Markdown格式转换成tokenless格式
  */
 
+import { readFileSync } from 'fs';
+import { extname } from 'path';
+
+/**
+ * 读取本地文件并转换为tokenless格式
+ *
+ * 根据文件扩展名自动判断文件类型：
+ * - .json 文件：解析为JSON对象后转换
+ * - .md / .markdown 文件：作为Markdown文本转换
+ * - 其他文件：先尝试解析为JSON，失败则作为Markdown文本转换
+ *
+ * @param {string} filePath - 本地文件路径
+ * @returns {string} - tokenless格式字符串
+ */
+export function tokenlessFile(filePath) {
+  const content = readFileSync(filePath, 'utf-8');
+  const ext = extname(filePath).toLowerCase();
+  if (ext === '.json') {
+    return convertJson(JSON.parse(content));
+  }
+  if (ext === '.md' || ext === '.markdown') {
+    return convertMarkdown(content);
+  }
+  // 其他扩展名：尝试JSON，失败则当Markdown处理
+  try {
+    return convertJson(JSON.parse(content));
+  } catch {
+    return convertMarkdown(content);
+  }
+}
+
 /**
  * 主入口函数，自动检测输入类型并转换
  * @param {any} input - 输入数据（JSON对象/数组或Markdown字符串）

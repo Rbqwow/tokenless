@@ -45,6 +45,18 @@ Tokenless.tokenless("# 标题\n**重点**内容");
 // 输出: 标题\n重点内容
 ```
 
+### Tokenless.tokenlessFile(String filePath)
+
+读取本地文件并转换为tokenless格式。根据文件扩展名自动判断类型：`.json` 文件解析为JSON，`.md` / `.markdown` 文件作为Markdown处理，其他文件先尝试JSON，失败则当Markdown处理。
+
+```java
+// 处理JSON文件
+String result = Tokenless.tokenlessFile("data.json");
+
+// 处理Markdown文件
+String result2 = Tokenless.tokenlessFile("README.md");
+```
+
 ### Tokenless.convertJson(String jsonStr)
 
 仅转换JSON字符串。

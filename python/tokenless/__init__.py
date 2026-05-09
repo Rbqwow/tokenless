@@ -3,10 +3,44 @@ tokenless - 一行代码降低60%的token量
 将JSON和Markdown格式转换成tokenless格式
 """
 
+import json
 import re
+from pathlib import Path
 from typing import Any, List, Dict, Union
 
 __version__ = "1.0.0"
+
+
+def tokenless_file(file_path: Union[str, Path]) -> str:
+    """
+    读取本地文件并转换为tokenless格式
+    
+    根据文件扩展名自动判断文件类型：
+    - .json 文件：解析为JSON对象后转换
+    - .md / .markdown 文件：作为Markdown文本转换
+    - 其他文件：先尝试解析为JSON，失败则作为Markdown文本转换
+    
+    Args:
+        file_path: 本地文件路径（字符串或Path对象）
+    
+    Returns:
+        tokenless格式字符串
+    
+    Raises:
+        FileNotFoundError: 文件不存在时抛出
+    """
+    path = Path(file_path)
+    content = path.read_text(encoding='utf-8')
+    ext = path.suffix.lower()
+    if ext == '.json':
+        return convert_json(json.loads(content))
+    if ext in ('.md', '.markdown'):
+        return convert_markdown(content)
+    # 其他扩展名：尝试JSON，失败则当Markdown处理
+    try:
+        return convert_json(json.loads(content))
+    except (json.JSONDecodeError, ValueError):
+        return convert_markdown(content)
 
 
 def tokenless(input_data: Any) -> str:

@@ -1,6 +1,9 @@
 package io.github.tokenless;
 
 import com.google.gson.*;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -12,6 +15,37 @@ public class Tokenless {
     
     private static final Gson gson = new Gson();
     
+    /**
+     * 读取本地文件并转换为tokenless格式
+     *
+     * 根据文件扩展名自动判断文件类型：
+     * - .json 文件：解析为JSON对象后转换
+     * - .md / .markdown 文件：作为Markdown文本转换
+     * - 其他文件：先尝试解析为JSON，失败则作为Markdown文本转换
+     *
+     * @param filePath 本地文件路径
+     * @return tokenless格式字符串
+     * @throws IOException 文件读取失败时抛出
+     */
+    public static String tokenlessFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        String name = path.getFileName().toString().toLowerCase();
+        if (name.endsWith(".json")) {
+            return convertJson(content);
+        }
+        if (name.endsWith(".md") || name.endsWith(".markdown")) {
+            return convertMarkdown(content);
+        }
+        // 其他扩展名：尝试JSON，失败则当Markdown处理
+        try {
+            JsonParser.parseString(content); // 验证JSON合法性
+            return convertJson(content);
+        } catch (JsonSyntaxException e) {
+            return convertMarkdown(content);
+        }
+    }
+
     /**
      * 主入口函数，自动检测输入类型并转换
      * @param input 输入数据（JSON字符串或Markdown字符串）
