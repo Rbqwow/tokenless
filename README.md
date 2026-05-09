@@ -15,8 +15,9 @@ npm install tokenless
 ```
 
 ```javascript
-import { tokenless } from 'tokenless';
-const result = tokenless(data);
+import { tokenless, tokenlessFile } from 'tokenless';
+const result = tokenless(data);         // 处理内存数据
+const result2 = tokenlessFile('data.json'); // 处理本地文件
 ```
 
 详细文档：[js/README.md](./js/README.md)
@@ -28,8 +29,9 @@ pip install tokenless
 ```
 
 ```python
-from tokenless import tokenless
-result = tokenless(data)
+from tokenless import tokenless, tokenless_file
+result = tokenless(data)               # 处理内存数据
+result2 = tokenless_file('data.json') # 处理本地文件
 ```
 
 详细文档：[python/README.md](./python/README.md)
@@ -46,7 +48,8 @@ result = tokenless(data)
 
 ```java
 import io.github.tokenless.Tokenless;
-String result = Tokenless.tokenless(data);
+String result = Tokenless.tokenless(data);              // 处理内存数据
+String result2 = Tokenless.tokenlessFile("data.json"); // 处理本地文件
 ```
 
 详细文档：[java/README.md](./java/README.md)
