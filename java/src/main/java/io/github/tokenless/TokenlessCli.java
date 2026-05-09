@@ -18,7 +18,8 @@ public class TokenlessCli {
         try {
             return execute(args, stdin, stdout, stderr);
         } catch (Exception e) {
-            stderr.println("错误: " + e.getMessage());
+            String message = e.getMessage();
+            stderr.println("错误: " + (message == null ? e.getClass().getSimpleName() : message));
             return 1;
         }
     }
