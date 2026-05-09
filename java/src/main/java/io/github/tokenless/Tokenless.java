@@ -81,9 +81,12 @@ public class Tokenless {
     }
 
     private static JsonElement parseJson(String jsonStr) {
-        JsonReader reader = new JsonReader(new StringReader(jsonStr));
-        reader.setLenient(false);
-        return JsonParser.parseReader(reader);
+        try (JsonReader reader = new JsonReader(new StringReader(jsonStr))) {
+            reader.setLenient(false);
+            return JsonParser.parseReader(reader);
+        } catch (IOException e) {
+            throw new JsonIOException(e);
+        }
     }
 
     private static boolean looksLikeJsonValue(String text) {
