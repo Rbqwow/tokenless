@@ -1,5 +1,6 @@
 package io.github.tokenless;
 
+import com.google.gson.JsonSyntaxException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -57,7 +58,12 @@ public class TokenlessCli {
 
         String result;
         if (inputPath.equals("-")) {
-            result = Tokenless.tokenless(readStdin(stdin));
+            String content = readStdin(stdin);
+            try {
+                result = Tokenless.convertJson(content);
+            } catch (JsonSyntaxException e) {
+                result = Tokenless.convertMarkdown(content);
+            }
         } else {
             result = Tokenless.tokenlessFile(inputPath);
         }
@@ -79,11 +85,10 @@ public class TokenlessCli {
 
     private static String readStdin(InputStream stdin) throws IOException {
         StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stdin, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append('\n');
-            }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stdin, StandardCharsets.UTF_8));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append('\n');
         }
         return sb.toString();
     }

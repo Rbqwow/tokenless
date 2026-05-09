@@ -7,6 +7,7 @@ import { execFileSync } from 'child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
+import { fileURLToPath } from 'url';
 
 // 加载测试用例
 const testCases = JSON.parse(readFileSync('../test-cases.json', 'utf-8')).testCases;
@@ -59,7 +60,7 @@ try {
   }
 
   const cliOutput = execFileSync('node', ['cli.js', '-'], {
-    cwd: new URL('.', import.meta.url),
+    cwd: fileURLToPath(new URL('.', import.meta.url)),
     input: '{"a":1,"b":true}',
     encoding: 'utf-8',
   });
