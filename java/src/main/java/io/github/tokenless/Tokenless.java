@@ -91,14 +91,19 @@ public class Tokenless {
             return false;
         }
         char first = text.charAt(0);
-        return first == '{'
-                || first == '['
-                || first == '"'
-                || first == '-'
-                || Character.isDigit(first)
-                || first == 't'
-                || first == 'f'
-                || first == 'n';
+        if (first == '{' || first == '[' || first == '"' || first == '-' || Character.isDigit(first)) {
+            return true;
+        }
+        if (first == 't') {
+            return text.startsWith("true");
+        }
+        if (first == 'f') {
+            return text.startsWith("false");
+        }
+        if (first == 'n') {
+            return text.startsWith("null");
+        }
+        return false;
     }
     
     /**
