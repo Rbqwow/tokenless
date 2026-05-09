@@ -20,6 +20,12 @@ const result = tokenless(data);         // 处理内存数据
 const result2 = tokenlessFile('data.json'); // 处理本地文件
 ```
 
+命令行（`npm install -g tokenless` 后）：
+
+```bash
+tokenless before.md -o after.md
+```
+
 详细文档：[js/README.md](./js/README.md)
 
 ### Python
@@ -32,6 +38,12 @@ pip install tokenless
 from tokenless import tokenless, tokenless_file
 result = tokenless(data)               # 处理内存数据
 result2 = tokenless_file('data.json') # 处理本地文件
+```
+
+命令行：
+
+```bash
+tokenless before.md -o after.md
 ```
 
 详细文档：[python/README.md](./python/README.md)
@@ -50,6 +62,12 @@ result2 = tokenless_file('data.json') # 处理本地文件
 import io.github.tokenless.Tokenless;
 String result = Tokenless.tokenless(data);              // 处理内存数据
 String result2 = Tokenless.tokenlessFile("data.json"); // 处理本地文件
+```
+
+命令行（`mvn package` 后）：
+
+```bash
+java -jar target/tokenless.jar before.md -o after.md
 ```
 
 详细文档：[java/README.md](./java/README.md)

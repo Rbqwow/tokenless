@@ -5,6 +5,9 @@ description = "一行代码降低60%的token量"
 readme = "README.md"
 requires-python = ">=3.8"
 
+[project.scripts]
+tokenless = "tokenless.cli:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
