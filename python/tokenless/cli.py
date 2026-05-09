@@ -4,10 +4,11 @@ tokenless CLI - 命令行工具
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
-from . import tokenless as _tokenless, tokenless_file
+from . import convert_json, convert_markdown, tokenless_file
 
 
 def main():
@@ -28,7 +29,10 @@ def main():
 
     if args.input == '-':
         content = sys.stdin.read()
-        result = _tokenless(content)
+        try:
+            result = convert_json(json.loads(content))
+        except json.JSONDecodeError:
+            result = convert_markdown(content)
     else:
         result = tokenless_file(args.input)
 

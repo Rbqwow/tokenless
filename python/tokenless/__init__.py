@@ -28,6 +28,7 @@ def tokenless_file(file_path: Union[str, Path]) -> str:
     
     Raises:
         FileNotFoundError: 文件不存在时抛出
+        json.JSONDecodeError: 当 .json 文件内容不是合法 JSON 时抛出
     """
     path = Path(file_path)
     content = path.read_text(encoding='utf-8')
@@ -39,7 +40,7 @@ def tokenless_file(file_path: Union[str, Path]) -> str:
     # 其他扩展名：尝试JSON，失败则当Markdown处理
     try:
         return convert_json(json.loads(content))
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError:
         return convert_markdown(content)
 
 

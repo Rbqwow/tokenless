@@ -61,6 +61,68 @@ public class TokenlessTest {
     void testMarkdownTable() {
         runTestCase(7); // Markdown表格处理
     }
+
+    @Test
+    void testTokenlessFileJson() throws IOException {
+        Path path = createTempFile("sample", ".json", "{\"a\":1,\"b\":true}");
+        assertEquals("a:1\nb:1", Tokenless.tokenlessFile(path.toString()));
+    }
+
+    @Test
+    void testTokenlessFileMarkdown() throws IOException {
+        Path path = createTempFile("sample", ".md", "# Title\n\n**bold**");
+        assertEquals("Title\nbold", Tokenless.tokenlessFile(path.toString()));
+    }
+
+    @Test
+    void testTokenlessFileFallbackJson() throws IOException {
+        Path path = createTempFile("sample", ".txt", "{\"a\":1}");
+        assertEquals("a:1", Tokenless.tokenlessFile(path.toString()));
+    }
+
+    @Test
+    void testTokenlessFileFallbackMarkdown() throws IOException {
+        Path path = createTempFile("sample", ".txt", "# Heading");
+        assertEquals("Heading", Tokenless.tokenlessFile(path.toString()));
+    }
+
+    @Test
+    void testTokenlessFileInvalidJsonExtensionThrows() throws IOException {
+        Path path = createTempFile("sample", ".json", "{");
+        assertThrows(JsonSyntaxException.class, () -> Tokenless.tokenlessFile(path.toString()));
+    }
+
+    @Test
+    void testCliReadsJsonFromStdin() {
+        ByteArrayInputStream stdin = new ByteArrayInputStream("{\"a\":1,\"b\":true}".getBytes());
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        int exitCode = TokenlessCli.run(
+                new String[] {"-"},
+                stdin,
+                new PrintStream(stdout),
+                new PrintStream(stderr));
+
+        assertEquals(0, exitCode);
+        assertEquals("a:1\nb:1", stdout.toString().trim());
+        assertEquals("", stderr.toString());
+    }
+
+    @Test
+    void testCliRejectsMultiplePositionalArgs() {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        int exitCode = TokenlessCli.run(
+                new String[] {"a.json", "b.json"},
+                new ByteArrayInputStream(new byte[0]),
+                new PrintStream(stdout),
+                new PrintStream(stderr));
+
+        assertEquals(1, exitCode);
+        assertTrue(stderr.toString().contains("仅支持一个位置参数"));
+    }
     
     private void runTestCase(int index) {
         JsonObject tc = testCases.get(index).getAsJsonObject();
@@ -76,5 +138,12 @@ public class TokenlessTest {
         }
         
         assertEquals(expected, result, "测试失败: " + name);
+    }
+
+    private Path createTempFile(String prefix, String suffix, String content) throws IOException {
+        Path path = Files.createTempFile(prefix, suffix);
+        Files.writeString(path, content);
+        path.toFile().deleteOnExit();
+        return path;
     }
 }

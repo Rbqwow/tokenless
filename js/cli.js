@@ -48,7 +48,11 @@ async function run() {
       chunks.push(chunk);
     }
     const content = Buffer.concat(chunks).toString('utf-8');
-    result = tokenless(content);
+    try {
+      result = tokenless(JSON.parse(content));
+    } catch {
+      result = tokenless(content);
+    }
   } else {
     result = tokenlessFile(inputPath);
   }

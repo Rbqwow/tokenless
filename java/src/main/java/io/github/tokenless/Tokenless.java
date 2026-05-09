@@ -1,7 +1,9 @@
 package io.github.tokenless;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -26,6 +28,7 @@ public class Tokenless {
      * @param filePath 本地文件路径
      * @return tokenless格式字符串
      * @throws IOException 文件读取失败时抛出
+     * @throws JsonSyntaxException 当 .json 文件内容不是合法 JSON 时抛出
      */
     public static String tokenlessFile(String filePath) throws IOException {
         Path path = Paths.get(filePath);
@@ -38,9 +41,11 @@ public class Tokenless {
             return convertMarkdown(content);
         }
         // 其他扩展名：尝试JSON，失败则当Markdown处理
+        if (!looksLikeJsonValue(content.trim())) {
+            return convertMarkdown(content);
+        }
         try {
-            JsonParser.parseString(content); // 验证JSON合法性
-            return convertJson(content);
+            return convertJson(parseJson(content));
         } catch (JsonSyntaxException e) {
             return convertMarkdown(content);
         }
@@ -68,8 +73,32 @@ public class Tokenless {
      * 转换JSON字符串
      */
     public static String convertJson(String jsonStr) {
-        JsonElement element = JsonParser.parseString(jsonStr);
+        return convertJson(parseJson(jsonStr));
+    }
+
+    private static String convertJson(JsonElement element) {
         return convertJsonElement(element, 0);
+    }
+
+    private static JsonElement parseJson(String jsonStr) {
+        JsonReader reader = new JsonReader(new StringReader(jsonStr));
+        reader.setLenient(false);
+        return JsonParser.parseReader(reader);
+    }
+
+    private static boolean looksLikeJsonValue(String text) {
+        if (text.isEmpty()) {
+            return false;
+        }
+        char first = text.charAt(0);
+        return first == '{'
+                || first == '['
+                || first == '"'
+                || first == '-'
+                || Character.isDigit(first)
+                || first == 't'
+                || first == 'f'
+                || first == 'n';
     }
     
     /**

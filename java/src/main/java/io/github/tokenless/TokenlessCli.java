@@ -10,10 +10,24 @@ import java.nio.file.*;
  */
 public class TokenlessCli {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        System.exit(run(args, System.in, System.out, System.err));
+    }
+
+    static int run(String[] args, InputStream stdin, PrintStream stdout, PrintStream stderr) {
+        try {
+            return execute(args, stdin, stdout, stderr);
+        } catch (Exception e) {
+            stderr.println("错误: " + e.getMessage());
+            return 1;
+        }
+    }
+
+    private static int execute(String[] args, InputStream stdin, PrintStream stdout, PrintStream stderr)
+            throws IOException {
         if (args.length == 0 || hasFlag(args, "--help") || hasFlag(args, "-h")) {
-            printHelp();
-            System.exit(args.length == 0 ? 1 : 0);
+            printHelp(stdout);
+            return args.length == 0 ? 1 : 0;
         }
 
         String inputPath = null;
@@ -22,32 +36,27 @@ public class TokenlessCli {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-o") || args[i].equals("--output")) {
                 if (i + 1 >= args.length) {
-                    System.err.println("错误: -o 选项需要指定输出文件路径");
-                    System.exit(1);
+                    stderr.println("错误: -o 选项需要指定输出文件路径");
+                    return 1;
                 }
                 outputPath = args[++i];
             } else {
+                if (inputPath != null) {
+                    stderr.println("错误: 仅支持一个位置参数作为输入文件路径");
+                    return 1;
+                }
                 inputPath = args[i];
             }
         }
 
         if (inputPath == null) {
-            System.err.println("错误: 请指定输入文件路径");
-            System.exit(1);
+            stderr.println("错误: 请指定输入文件路径");
+            return 1;
         }
 
         String result;
         if (inputPath.equals("-")) {
-            // 从标准输入读取
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append('\n');
-                }
-            }
-            result = Tokenless.tokenless(sb.toString());
+            result = Tokenless.tokenless(readStdin(stdin));
         } else {
             result = Tokenless.tokenlessFile(inputPath);
         }
@@ -55,8 +64,9 @@ public class TokenlessCli {
         if (outputPath != null) {
             Files.writeString(Path.of(outputPath), result, StandardCharsets.UTF_8);
         } else {
-            System.out.println(result);
+            stdout.println(result);
         }
+        return 0;
     }
 
     private static boolean hasFlag(String[] args, String flag) {
@@ -66,11 +76,22 @@ public class TokenlessCli {
         return false;
     }
 
-    private static void printHelp() {
-        System.out.println("用法: java -jar tokenless.jar <input> [-o <output>]");
-        System.out.println();
-        System.out.println("参数:");
-        System.out.println("  input          输入文件路径，或使用 - 从标准输入读取");
-        System.out.println("  -o, --output   输出文件路径（默认输出到标准输出）");
+    private static String readStdin(InputStream stdin) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stdin, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        }
+        return sb.toString();
+    }
+
+    private static void printHelp(PrintStream stdout) {
+        stdout.println("用法: java -jar tokenless.jar <input> [-o <output>]");
+        stdout.println();
+        stdout.println("参数:");
+        stdout.println("  input          输入文件路径，或使用 - 从标准输入读取");
+        stdout.println("  -o, --output   输出文件路径（默认输出到标准输出）");
     }
 }
