@@ -3,6 +3,7 @@ package io.github.tokenless;
 import com.google.gson.*;
 import org.junit.jupiter.api.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -94,7 +95,7 @@ public class TokenlessTest {
 
     @Test
     void testCliReadsJsonFromStdin() {
-        ByteArrayInputStream stdin = new ByteArrayInputStream("{\"a\":1,\"b\":true}".getBytes());
+        ByteArrayInputStream stdin = new ByteArrayInputStream("{\"a\":1,\"b\":true}".getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
@@ -142,7 +143,7 @@ public class TokenlessTest {
 
     private Path createTempFile(String prefix, String suffix, String content) throws IOException {
         Path path = Files.createTempFile(prefix, suffix);
-        Files.writeString(path, content);
+        Files.writeString(path, content, StandardCharsets.UTF_8);
         path.toFile().deleteOnExit();
         return path;
     }

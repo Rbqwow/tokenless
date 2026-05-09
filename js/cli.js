@@ -4,7 +4,7 @@
  * 用法: tokenless <input> [-o <output>]
  */
 
-import { tokenlessFile, tokenless } from './index.js';
+import { tokenlessFile, tokenless, convertJson } from './index.js';
 import { writeFileSync } from 'fs';
 
 const args = process.argv.slice(2);
@@ -49,7 +49,7 @@ async function run() {
     }
     const content = Buffer.concat(chunks).toString('utf-8');
     try {
-      result = tokenless(JSON.parse(content));
+      result = convertJson(JSON.parse(content));
     } catch {
       result = tokenless(content);
     }
