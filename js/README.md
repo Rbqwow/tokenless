@@ -17,6 +17,21 @@ import { tokenless } from 'tokenless';
 const result = tokenless(data);
 ```
 
+## 命令行工具
+
+安装后可直接在命令行使用：
+
+```bash
+# 转换文件并输出到标准输出
+tokenless before.md
+
+# 转换文件并保存到指定路径
+tokenless before.md -o after.md
+
+# 从标准输入读取
+cat data.json | tokenless -
+```
+
 ## API
 
 ### tokenless(input)

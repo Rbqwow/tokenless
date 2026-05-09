@@ -4,6 +4,9 @@
   "description": "一行代码降低60%的token量",
   "main": "index.js",
   "type": "module",
+  "bin": {
+    "tokenless": "./cli.js"
+  },
   "scripts": {
     "test": "node test.js"
   },

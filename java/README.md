@@ -22,6 +22,24 @@ import io.github.tokenless.Tokenless;
 String result = Tokenless.tokenless(data);
 ```
 
+## 命令行工具
+
+构建 fat jar 后可直接在命令行使用：
+
+```bash
+# 构建
+mvn package
+
+# 转换文件并输出到标准输出
+java -jar target/tokenless.jar before.md
+
+# 转换文件并保存到指定路径
+java -jar target/tokenless.jar before.md -o after.md
+
+# 从标准输入读取
+cat data.json | java -jar target/tokenless.jar -
+```
+
 ## API
 
 ### Tokenless.tokenless(String input)
